@@ -116,9 +116,7 @@ button.ghost{
   border-color:var(--accent);
   background:#e8f6f7;
 }
-.charEmoji{
-  font-size:36px;
-}
+.charEmoji{font-size:36px;}
 
 /* Game UI */
 .hero{
@@ -159,9 +157,7 @@ button.ghost{
   gap:20px;
   margin-bottom:10px;
 }
-.counterBox{
-  font-size:22px;
-}
+.counterBox{font-size:22px;}
 
 /* Leaderboard */
 .leaderboard{
@@ -230,7 +226,6 @@ button.ghost{
 <div class="screen" id="characters">
   <h3 style="text-align:center;">Choose Your Hunter</h3>
   <div class="grid" id="charGrid"></div>
-  <button onclick="show('start')">Confirm Selection ✅</button>
 </div>
 
 <!-- GAME -->
@@ -286,9 +281,12 @@ function renderCharacters(){
  grid.innerHTML="";
  characters.forEach((c,i)=>{
    const d=document.createElement("div");
-   d.className="charCard"+(i===selectedChar?" selected":"");
+   d.className="charCard";
    d.innerHTML=`<div class="charEmoji">${c.emoji}</div>${c.name}`;
-   d.onclick=()=>{selectedChar=i;renderCharacters();};
+   d.onclick=()=>{
+     selectedChar=i;
+     startGame(); // 🚀 START GAME IMMEDIATELY
+   };
    grid.appendChild(d);
  });
 }
