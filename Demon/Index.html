@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>K-POP Demon Hunters</title>
+
+<style>
+:root{
+  --accent:#ff2f92;
+  --stage1:#ffb3e6;
+  --stage2:#9ad9ff;
+}
+
+/* ====== BASE ====== */
+body{
+  margin:0;
+  font-family:"Comic Sans MS", Arial, sans-serif;
+  background:#000;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:16px;
+  overflow:hidden;
+}
+
+/* ====== ANIMATED STAGE ====== */
+.stage{
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,.25), transparent 40%),
+    radial-gradient(circle at 80% 20%, rgba(255,255,255,.18), transparent 45%),
+    linear-gradient(135deg,var(--stage1),var(--stage2));
+  animation:stagePulse 6s ease-in-out infinite alternate;
+}
+
+.stage::before,
+.stage::after{
+  content:"";
+  position:absolute;
+  inset:-50%;
+  background:
+    repeating-linear-gradient(
+      60deg,
+      rgba(255,255,255,.15) 0px,
+      rgba(255,255,255,.15) 2px,
+      transparent 6px,
+      transparent 40px
+    );
+  animation:lightsMove 10s linear infinite;
+}
+
+.stage::after{
+  transform:rotate(90deg);
+  animation-duration:14s;
+  opacity:.6;
+}
+
+@keyframes lightsMove{
+  from{transform:translateY(0)}
+  to{transform:translateY(200px)}
+}
+
+@keyframes stagePulse{
+  0%{filter:brightness(1)}
+  100%{filter:brightness(1.2)}
+}
+
+/* ====== APP ====== */
+.app{
+  background:#fff;
+  max-width:520px;
+  width:100%;
+  border-radius:22px;
+  box-shadow:0 14px 40px rgba(0,0,0,.45);
+  overflow:hidden;
+}
+
+header{
+  text-align:center;
+  padding:16px;
+  color:var(--accent);
+}
+
+.screen{display:none;padding:16px;}
+.screen.active{display:block;}
+
+input,select,button{
+  width:100%;
+  font-size:18px;
+  padding:12px;
+  border-radius:14px;
+  border:2px solid var(--accent);
+  margin-top:10px;
+}
+
+button{
+  background:var(--accent);
+  color:#fff;
+  border:none;
+}
+
+button.ghost{
+  background:#fff;
+  color:var(--accent);
+  border:2px solid var(--accent);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.charCard{
+  border-radius:16px;
+  border:2px solid #ccc;
+  padding:12px;
+  text-align:center;
+  cursor:pointer;
+  background:#fff;
+}
+
+.charCard.selected{
+  border-color:var(--accent);
+  background:rgba(0,0,0,.05);
+}
+
+.hero{
+  font-size:64px;
+  text-align:center;
+  animation:bounce 1.5s infinite;
+}
+
+@keyframes bounce{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-12px)}
+}
+
+.hud{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+.pill{
+  padding:6px 10px;
+  border-radius:999px;
+  background:#eee;
+  font-size:13px;
+}
+
+.question{
+  background:rgba(0,0,0,.05);
+  border-radius:14px;
+  padding:12px;
+  margin:12px 0;
+  font-size:18px;
+}
+
+.explain{
+  background:#f4f4f4;
+  padding:12px;
+  border-radius:14px;
+  margin-top:10px;
+}
+
+/* ====== SPARKLES ====== */
+.sparkle{
+  position:absolute;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:rgba(255,255,255,.9);
+  animation: sparkle 3s linear infinite;
+}
+
+@keyframes sparkle{
+  from{transform:translateY(100vh) scale(0)}
+  to{transform:translateY(-20vh) scale(1)}
+}
+</style>
+</head>
+
+<body>
+<div class="stage" id="stage"></div>
+
+<div class="app">
+<header>
+  <h1>🎤 K-POP Demon Hunters ⚔️</h1>
+</header>
+
+<!-- START -->
+<div class="screen active" id="start">
+  <input id="nameInput" placeholder="Hunter name">
+  <select id="ageInput">
+    <option>7</option><option>8</option><option>9</option>
+    <option>10</option><option>11</option><option>12</option>
+  </select>
+  <button onclick="goCharacters()">Choose Character 🎭</button>
+</div>
+
+<!-- CHARACTERS -->
+<div class="screen" id="characters">
+  <div class="grid" id="charGrid"></div>
+  <button onclick="startGame()">Start Game 🎶</button>
+  <button class="ghost" onclick="show('start')">Back</button>
+</div>
+
+<!-- GAME -->
+<div class="screen" id="game">
+  <div class="hud">
+    <div class="pill" id="hudPlayer"></div>
+    <div class="pill" id="hudAge"></div>
+    <div class="pill" id="hudScore"></div>
+  </div>
+
+  <div class="hero" id="hero"></div>
+
+  <div class="question" id="question"></div>
+  <input type="number" id="answer">
+  <button onclick="submit()">Attack 💥</button>
+
+  <div id="message"></div>
+  <div id="explain" class="explain" style="display:none"></div>
+</div>
+
+<!-- END -->
+<div class="screen" id="end">
+  <div class="hero">🏆</div>
+  <div id="endMsg"></div>
+  <button onclick="startGame()">Play Again</button>
+</div>
+
+<!-- MUSIC -->
+<audio id="bgMusic" loop></audio>
+<audio id="correct" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg"></audio>
+<audio id="wrong" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+
+<script>
+const characters=[
+  {name:"Zoey",emoji:"🧑‍🎤⚡",accent:"#ff2f92",stage1:"#ff5fa2",stage2:"#ff9ad5",
+   music:"https://cdn.pixabay.com/audio/2023/04/11/audio_8d9a2e3c7c.mp3"},
+  {name:"Rumi",emoji:"🧝‍♀️🎤",accent:"#9b59b6",stage1:"#b185f0",stage2:"#e0c3fc",
+   music:"https://cdn.pixabay.com/audio/2023/03/30/audio_9b9e5c14d7.mp3"},
+  {name:"Mira",emoji:"🦸‍♀️🔥",accent:"#e74c3c",stage1:"#ff6b6b",stage2:"#ffb3b3",
+   music:"https://cdn.pixabay.com/audio/2022/11/30/audio_f7f40a2b6c.mp3"},
+  {name:"Loe",emoji:"🧑‍🎤💎",accent:"#3498db",stage1:"#6fb1fc",stage2:"#a1c4fd",
+   music:"https://cdn.pixabay.com/audio/2022/10/03/audio_2a55c3d1c7.mp3"},
+  {name:"Luna Max",emoji:"🧙‍♀️✨",accent:"#8e44ad",stage1:"#a18cd1",stage2:"#fbc2eb",
+   music:"https://cdn.pixabay.com/audio/2022/03/15/audio_7b2a6d6fcb.mp3"},
+  {name:"Zakey",emoji:"🧑‍🎤🪽",accent:"#2ecc71",stage1:"#43e97b",stage2:"#b8f2d6",
+   music:"https://cdn.pixabay.com/audio/2022/08/04/audio_8d0f3f0a55.mp3"},
+];
+
+let charIndex=0,score=0,q=0,answer=0;
+
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function applySkin(){
+  const c=characters[charIndex];
+  document.documentElement.style.setProperty("--accent",c.accent);
+  document.documentElement.style.setProperty("--stage1",c.stage1);
+  document.documentElement.style.setProperty("--stage2",c.stage2);
+}
+
+function goCharacters(){
+  const grid=document.getElementById("charGrid");
+  grid.innerHTML="";
+  characters.forEach((c,i)=>{
+    const d=document.createElement("div");
+    d.className="charCard"+(i===charIndex?" selected":"");
+    d.innerHTML=`<div style="font-size:40px">${c.emoji}</div>${c.name}`;
+    d.onclick=()=>{charIndex=i;applySkin();goCharacters();}
+    grid.appendChild(d);
+  });
+  show("characters");
+}
+
+function startGame(){
+  score=0;q=0;
+  applySkin();
+  const music=document.getElementById("bgMusic");
+  music.src=characters[charIndex].music;
+  music.play();
+  show("game");
+  next();
+}
+
+function next(){
+  if(q>=10){end(true);return;}
+  q++;
+  const a=Math.floor(Math.random()*10)+1;
+  const b=Math.floor(Math.random()*10)+1;
+  answer=a+b;
+  document.getElementById("question").innerText=`${a} + ${b} = ?`;
+  document.getElementById("hudPlayer").innerText=characters[charIndex].name;
+  document.getElementById("hudAge").innerText="Age "+document.getElementById("ageInput").value;
+  document.getElementById("hudScore").innerText=`${score}/10`;
+  document.getElementById("hero").innerText=characters[charIndex].emoji;
+  document.getElementById("answer").value="";
+}
+
+function submit(){
+  const val=Number(document.getElementById("answer").value);
+  if(val===answer){
+    score++;
+    document.getElementById("correct").play();
+    next();
+  }else{
+    document.getElementById("wrong").play();
+    document.getElementById("explain").style.display="block";
+    document.getElementById("explain").innerText=
+      `Correct answer: ${answer}\nReason: we add the two numbers together.`;
+    end(false);
+  }
+}
+
+function end(win){
+  document.getElementById("bgMusic").pause();
+  show("end");
+  document.getElementById("endMsg").innerText=
+    win?"You defeated all the demons! 🎉":"Game over! You scored "+score+"/10";
+}
+</script>
+</div>
+</body>
+</html>
