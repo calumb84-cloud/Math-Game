@@ -99,7 +99,28 @@ button.ghost{
   border:2px solid var(--accent);
 }
 
-/* UI */
+/* Characters */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+.charCard{
+  padding:12px;
+  border-radius:16px;
+  border:2px solid #ccc;
+  text-align:center;
+  cursor:pointer;
+}
+.charCard.selected{
+  border-color:var(--accent);
+  background:#e8f6f7;
+}
+.charEmoji{
+  font-size:36px;
+}
+
+/* Game UI */
 .hero{
   font-size:64px;
   text-align:center;
@@ -131,7 +152,7 @@ button.ghost{
   font-size:18px;
 }
 
-/* Visual counters */
+/* Counters */
 .counters{
   display:flex;
   justify-content:center;
@@ -139,10 +160,6 @@ button.ghost{
   margin-bottom:10px;
 }
 .counterBox{
-  text-align:center;
-}
-.counterBox span{
-  display:inline-block;
   font-size:22px;
 }
 
@@ -203,9 +220,17 @@ button.ghost{
     <option value="13">13 years</option>
   </select>
 
-  <button onclick="startGame()">Start Game 🎶</button>
+  <button onclick="show('characters')">Choose Character 🎭</button>
+  <button class="ghost" onclick="toggleMusic()" id="musicBtn">🔊 Music ON</button>
 
   <div class="leaderboard" id="leaderboard"></div>
+</div>
+
+<!-- CHARACTER SELECT -->
+<div class="screen" id="characters">
+  <h3 style="text-align:center;">Choose Your Hunter</h3>
+  <div class="grid" id="charGrid"></div>
+  <button onclick="show('start')">Confirm Selection ✅</button>
 </div>
 
 <!-- GAME -->
@@ -215,7 +240,7 @@ button.ghost{
     <div class="pill" id="hudScore"></div>
   </div>
 
-  <div class="hero" id="hero">🧑‍🎤⚡</div>
+  <div class="hero" id="hero"></div>
 
   <div class="counters" id="counters" style="display:none"></div>
 
@@ -238,21 +263,52 @@ button.ghost{
 <audio id="wrong" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
 
 <script>
+const characters=[
+ {name:"Luna",emoji:"🌙🎤"},
+ {name:"Loe",emoji:"💎🎶"},
+ {name:"Zakey",emoji:"🪽🎧"},
+ {name:"Rumi",emoji:"🎤✨"},
+ {name:"Mira",emoji:"🔥🎵"},
+ {name:"Zoey",emoji:"⚡🎶"},
+];
+
+let selectedChar=0;
 let score=0,q=0,a=0,b=0,ans=0;
-const hero=document.getElementById("hero");
+let musicOn=true;
+
+function show(id){
+ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
+}
+
+function renderCharacters(){
+ const grid=document.getElementById("charGrid");
+ grid.innerHTML="";
+ characters.forEach((c,i)=>{
+   const d=document.createElement("div");
+   d.className="charCard"+(i===selectedChar?" selected":"");
+   d.innerHTML=`<div class="charEmoji">${c.emoji}</div>${c.name}`;
+   d.onclick=()=>{selectedChar=i;renderCharacters();};
+   grid.appendChild(d);
+ });
+}
+renderCharacters();
 
 function startGame(){
  score=0;q=0;
  stage.style.display="block";
  crowd.style.display="flex";
- bgMusic.pause();bgMusic.currentTime=0;
  show("game");
  next();
 }
 
-function show(id){
- document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
- document.getElementById(id).classList.add("active");
+function quitGame(){
+ show("start");
+}
+
+function toggleMusic(){
+ musicOn=!musicOn;
+ musicBtn.textContent=musicOn?"🔊 Music ON":"🔇 Music OFF";
 }
 
 function next(){
@@ -265,23 +321,18 @@ function next(){
    b=Math.floor(Math.random()*5)+1;
    ans=a+b;
    showCounters(a,b);
-   question.innerText=`How many in total?`;
- }else if(age<=9){
-   a=Math.floor(Math.random()*10)+1;
-   b=Math.floor(Math.random()*10)+1;
-   ans=a+b;
-   counters.style.display="none";
-   question.innerText=`${a} + ${b} = ?`;
+   question.innerText="How many in total?";
  }else{
+   counters.style.display="none";
    a=Math.floor(Math.random()*10)+1;
    b=Math.floor(Math.random()*10)+1;
-   ans=a*b;
-   counters.style.display="none";
-   question.innerText=`${a} × ${b} = ?`;
+   ans=age<=9?a+b:a*b;
+   question.innerText=`${a} ${age<=9?"+":"×"} ${b} = ?`;
  }
 
- hudPlayer.innerText=nameInput.value||"Hunter";
+ hudPlayer.innerText=(nameInput.value||"Hunter")+" • "+characters[selectedChar].name;
  hudScore.innerText=`${score}/10`;
+ hero.innerText=characters[selectedChar].emoji;
  answer.value="";
 }
 
@@ -298,7 +349,6 @@ function submit(){
    score++;correct.play();next();
  }else{
    wrong.play();
-   saveScore();
    explain.innerHTML=
      `<p><strong>Correct answer:</strong> ${ans}</p>
       <p>We count all the stars together to get ${ans}.</p>`;
@@ -307,14 +357,8 @@ function submit(){
  }
 }
 
-function quitGame(){
- bgMusic.pause();bgMusic.currentTime=0;
- saveScore();
- show("start");
-}
-
 function win(){
- saveScore();fireworks();
+ fireworks();
  endMsg.innerText="🎆 PERFECT SHOW! 10/10 🎆";
  explain.innerHTML="";
  show("end");
@@ -344,7 +388,7 @@ function renderLeaderboard(){
  const lb=JSON.parse(localStorage.getItem("scores")||"[]");
  leaderboard.innerHTML="<strong>🏆 Leaderboard</strong>";
  lb.forEach((s,i)=>{
-  leaderboard.innerHTML+=`<div class="lbRow">${i+1}. ${s.name}<span>${s.score}</span></div>`;
+   leaderboard.innerHTML+=`<div class="lbRow">${i+1}. ${s.name}<span>${s.score}</span></div>`;
  });
 }
 renderLeaderboard();
