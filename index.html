@@ -8,9 +8,6 @@
 <style>
 :root{
   --accent:#4fa3a5;
-  --stage1:#0f2027;
-  --stage2:#203a43;
-  --stage3:#2c5364;
 }
 
 body{
@@ -29,26 +26,7 @@ body{
   display:none;
   background:
     radial-gradient(circle at 50% 20%, rgba(255,255,255,.15), transparent 45%),
-    linear-gradient(180deg,var(--stage1),var(--stage2),var(--stage3));
-}
-
-.stage::before{
-  content:"";
-  position:absolute;
-  inset:-40%;
-  background:
-    repeating-linear-gradient(
-      60deg,
-      rgba(255,255,255,.08) 0px,
-      rgba(255,255,255,.08) 2px,
-      transparent 40px
-    );
-  animation:lights 12s linear infinite;
-}
-
-@keyframes lights{
-  from{transform:translateY(0)}
-  to{transform:translateY(300px)}
+    linear-gradient(180deg,#0f2027,#203a43,#2c5364);
 }
 
 /* ===== CROWD ===== */
@@ -62,7 +40,6 @@ body{
   align-items:flex-end;
   z-index:-1;
 }
-
 .fan{
   position:relative;
   width:28px;
@@ -70,46 +47,21 @@ body{
   animation:fanWave 1.6s ease-in-out infinite;
 }
 .fan:nth-child(even){animation-delay:.4s}
-
 .fan .head{
-  width:24px;
-  height:24px;
-  background:#111;
-  border-radius:50%;
-  margin:auto;
+  width:24px;height:24px;background:#111;border-radius:50%;margin:auto;
 }
 .fan .arm{
-  position:absolute;
-  width:6px;
-  height:30px;
-  background:#111;
-  top:22px;
-  left:2px;
-  transform-origin:bottom;
+  position:absolute;width:6px;height:30px;background:#111;top:22px;left:2px;
 }
-.fan .arm.right{
-  right:2px;
-  left:auto;
-}
+.fan .arm.right{right:2px;left:auto;}
 .fan .glow{
-  position:absolute;
-  width:6px;
-  height:18px;
+  position:absolute;width:6px;height:18px;
   background:linear-gradient(#00ffd5,#00bcd4);
-  top:-18px;
-  left:50%;
-  transform:translateX(-50%);
-  border-radius:4px;
-  animation:glow 1s infinite alternate;
+  top:-18px;left:50%;transform:translateX(-50%);
+  border-radius:4px;animation:glow 1s infinite alternate;
 }
-
-@keyframes fanWave{
-  50%{transform:translateY(-18px)}
-}
-@keyframes glow{
-  from{opacity:.4}
-  to{opacity:1}
-}
+@keyframes fanWave{50%{transform:translateY(-18px)}}
+@keyframes glow{from{opacity:.4}to{opacity:1}}
 
 /* ===== APP ===== */
 .app{
@@ -145,359 +97,32 @@ button.ghost{background:#fff;color:var(--accent);border:2px solid var(--accent);
 .charEmoji{font-size:36px}
 
 .hero{
-  font-size:64px;
-  text-align:center;
+  font-size:64px;text-align:center;
   animation:bounce 1.4s infinite;
 }
-@keyframes bounce{
-  50%{transform:translateY(-12px)}
-}
+@keyframes bounce{50%{transform:translateY(-12px)}}
 
 .hud{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
 .pill{background:#eee;padding:6px 10px;border-radius:999px;font-size:13px;}
 .question{background:#f5f5f5;padding:12px;border-radius:14px;margin:12px 0;}
 
-.counters{
-  display:flex;
-  gap:20px;
-  justify-content:center;
-}
+.counters{display:flex;gap:20px;justify-content:center;}
 .counterBox{font-size:22px}
-</style>
-</head>
 
-<body>
-
-<div class="stage" id="stage"></div>
-
-<div class="crowd" id="crowd">
-  <div class="fan"><div class="glow"></div><div class="head"></div><div class="arm"></div><div class="arm right"></div></div>
-  <div class="fan"><div class="glow"></div><div class="head"></div><div class="arm"></div><div class="arm right"></div></div>
-  <div class="fan"><div class="glow"></div><div class="head"></div><div class="arm"></div><div class="arm right"></div></div>
-  <div class="fan"><div class="glow"></div><div class="head"></div><div class="arm"></div><div class="arm right"></div></div>
-</div>
-
-<div class="app">
-<header><h1>🎤 K-POP Demon Hunters ⚔️</h1></header>
-
-<!-- START -->
-<div class="screen active" id="start">
-  <input id="nameInput" placeholder="Hunter name">
-  <select id="ageInput">
-    <option value="5">5 years</option>
-    <option value="6">6 years</option>
-    <option value="7">7 years</option>
-    <option value="8">8 years</option>
-    <option value="9">9 years</option>
-    <option value="10">10 years</option>
-    <option value="11">11 years</option>
-    <option value="12">12 years</option>
-    <option value="13">13 years</option>
-  </select>
-  <button onclick="show('characters')">Choose Character 🎭</button>
-</div>
-
-<!-- CHARACTERS -->
-<div class="screen" id="characters">
-  <div class="grid" id="charGrid"></div>
-</div>
-
-<!-- GAME -->
-<div class="screen" id="game">
-  <div class="hud">
-    <div class="pill" id="hudPlayer"></div>
-    <div class="pill" id="hudScore"></div>
-    <div class="pill" id="hudLevel"></div>
-  </div>
-
-  <div class="hero" id="hero"></div>
-  <div class="counters" id="counters" style="display:none"></div>
-  <div class="question" id="question"></div>
-
-  <input type="number" id="answer">
-  <button onclick="submit()">Attack 💥</button>
-  <button class="ghost" onclick="quitGame()">Quit 🚪</button>
-</div>
-
-<div class="screen" id="end">
-  <div id="endMsg"></div>
-  <div id="explain"></div>
-  <button onclick="startGame()">Play Again</button>
-</div>
-
-<script>
-const characters=[
- {name:"Luna",emoji:"🌙🎤"},
- {name:"Loe",emoji:"💎🎶"},
- {name:"Zakey",emoji:"🪽🎧"},
- {name:"Rumi",emoji:"🎤✨"},
- {name:"Mira",emoji:"🔥🎵"},
- {name:"Zoey",emoji:"⚡🎶"},
-];
-
-let selectedChar=0;
-let score=0,q=0,a=0,b=0,ans=0;
-let level=Number(localStorage.getItem("adaptiveLevel"))||1;
-let streak=0;
-let lastTime=Date.now();
-
-function show(id){
- document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
- document.getElementById(id).classList.add("active");
+/* ===== LOADING SCREEN ===== */
+.loader{
+  text-align:center;
+  padding:40px 0;
 }
-
-function renderCharacters(){
- charGrid.innerHTML="";
- characters.forEach((c,i)=>{
-  const d=document.createElement("div");
-  d.className="charCard";
-  d.innerHTML=`<div class="charEmoji">${c.emoji}</div>${c.name}`;
-  d.onclick=()=>{selectedChar=i;startGame();};
-  charGrid.appendChild(d);
- });
-}
-renderCharacters();
-
-function startGame(){
- score=0;q=0;streak=0;
- stage.style.display="block";
- crowd.style.display="flex";
- show("game");
- next();
-}
-
-function quitGame(){
- endGame();
- show("start");
-}
-
-function next(){
- if(q>=10){win();return;}
- q++;
- const age=Number(ageInput.value);
- const boost=Math.min(level,10);
-
- if(age<=6){                 // ✅ counters ONLY for ages 5–6
-   a=Math.floor(Math.random()*(5+boost))+1;
-   b=Math.floor(Math.random()*(5+boost))+1;
-   ans=a+b;
-   counters.style.display="flex";
-   counters.innerHTML=`<div class="counterBox">${"⭐".repeat(a)}</div><div class="counterBox">${"⭐".repeat(b)}</div>`;
-   question.innerText="How many in total?";
- }else{
-   counters.style.display="none";
-   a=Math.floor(Math.random()*(10+boost))+1;
-   b=Math.floor(Math.random()*(10+boost))+1;
-   ans=age<=9?a+b:a*b;
-   question.innerText=`${a} ${age<=9?"+":"×"} ${b} = ?`;
- }
-
- hudPlayer.innerText=characters[selectedChar].name;
- hudScore.innerText=`${score}/10`;
- hudLevel.innerText=`Level ${level}`;
- hero.innerText=characters[selectedChar].emoji;
- answer.value="";
- lastTime=Date.now();
-}
-
-function submit(){
- const timeTaken=(Date.now()-lastTime)/1000;
- const v=Number(answer.value);
-
- if(v===ans){
-   score++;streak++;
-   if(streak>=3 && timeTaken<4) level++;
-   next();
- }else{
-   streak=0;
-   level=Math.max(1,level-1);
-   explain.innerHTML=`<p><strong>Correct answer:</strong> ${ans}</p>`;
-   endMsg.innerText=`Game Over! Score ${score}/10`;
-   endGame();
-   show("end");
- }
-}
-
-function win(){
- level++;
- endMsg.innerText="🎆 PERFECT SHOW! 10/10 🎆";
- explain.innerHTML="";
- endGame();
- show("end");
-}
-
-function endGame(){
- localStorage.setItem("adaptiveLevel",level);
-}
-</script>
-
-</div>
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>K-POP Demon Hunters</title>
-
-<style>
-:root{
-  --accent:#4fa3a5;
-  --stage1:#0f2027;
-  --stage2:#203a43;
-  --stage3:#2c5364;
-}
-
-body{
-  margin:0;
-  font-family:"Comic Sans MS", Arial, sans-serif;
-  background:linear-gradient(135deg,#6ecbd2,#b7eef2);
-  min-height:100vh;
-  overflow:hidden;
-}
-
-/* ===== STAGE ===== */
-.stage{
-  position:fixed;
-  inset:0;
-  z-index:-3;
-  display:none;
-  background:
-    radial-gradient(circle at 50% 20%, rgba(255,255,255,.15), transparent 45%),
-    linear-gradient(180deg,var(--stage1),var(--stage2),var(--stage3));
-}
-
-.stage::before{
-  content:"";
-  position:absolute;
-  inset:-40%;
-  background:
-    repeating-linear-gradient(
-      60deg,
-      rgba(255,255,255,.08) 0px,
-      rgba(255,255,255,.08) 2px,
-      transparent 40px
-    );
-  animation:lights 12s linear infinite;
-}
-
-@keyframes lights{
-  from{transform:translateY(0)}
-  to{transform:translateY(300px)}
-}
-
-/* ===== CROWD ===== */
-.crowd{
-  position:fixed;
-  bottom:-10px;
-  width:100%;
-  height:160px;
-  display:none;
-  justify-content:space-evenly;
-  align-items:flex-end;
-  z-index:-1;
-}
-
-.fan{
-  position:relative;
-  width:28px;
-  height:80px;
-  animation:fanWave 1.6s ease-in-out infinite;
-}
-.fan:nth-child(even){animation-delay:.4s}
-
-.fan .head{
-  width:24px;
-  height:24px;
-  background:#111;
+.spinner{
+  width:60px;height:60px;
+  border:6px solid #ddd;
+  border-top:6px solid var(--accent);
   border-radius:50%;
-  margin:auto;
-}
-.fan .arm{
-  position:absolute;
-  width:6px;
-  height:30px;
-  background:#111;
-  top:22px;
-  left:2px;
-  transform-origin:bottom;
-}
-.fan .arm.right{
-  right:2px;
-  left:auto;
-}
-.fan .glow{
-  position:absolute;
-  width:6px;
-  height:18px;
-  background:linear-gradient(#00ffd5,#00bcd4);
-  top:-18px;
-  left:50%;
-  transform:translateX(-50%);
-  border-radius:4px;
-  animation:glow 1s infinite alternate;
-}
-
-@keyframes fanWave{
-  50%{transform:translateY(-18px)}
-}
-@keyframes glow{
-  from{opacity:.4}
-  to{opacity:1}
-}
-
-/* ===== APP ===== */
-.app{
-  max-width:520px;
+  animation:spin 1s linear infinite;
   margin:20px auto;
-  background:#fff;
-  border-radius:22px;
-  box-shadow:0 12px 30px rgba(0,0,0,.45);
-  overflow:hidden;
 }
-
-header{text-align:center;padding:16px;color:var(--accent);}
-.screen{display:none;padding:16px;}
-.screen.active{display:block;}
-
-input,select,button{
-  width:100%;
-  font-size:18px;
-  padding:12px;
-  border-radius:14px;
-  border:2px solid var(--accent);
-  margin-top:10px;
-}
-button{background:var(--accent);color:#fff;border:none;}
-button.ghost{background:#fff;color:var(--accent);border:2px solid var(--accent);}
-
-/* ===== UI ===== */
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-.charCard{
-  padding:12px;border-radius:16px;border:2px solid #ccc;
-  text-align:center;cursor:pointer;
-}
-.charEmoji{font-size:36px}
-
-.hero{
-  font-size:64px;
-  text-align:center;
-  animation:bounce 1.4s infinite;
-}
-@keyframes bounce{
-  50%{transform:translateY(-12px)}
-}
-
-.hud{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
-.pill{background:#eee;padding:6px 10px;border-radius:999px;font-size:13px;}
-.question{background:#f5f5f5;padding:12px;border-radius:14px;margin:12px 0;}
-
-.counters{
-  display:flex;
-  gap:20px;
-  justify-content:center;
-}
-.counterBox{font-size:22px}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 
@@ -519,22 +144,26 @@ button.ghost{background:#fff;color:var(--accent);border:2px solid var(--accent);
 <div class="screen active" id="start">
   <input id="nameInput" placeholder="Hunter name">
   <select id="ageInput">
-    <option value="5">5 years</option>
-    <option value="6">6 years</option>
-    <option value="7">7 years</option>
-    <option value="8">8 years</option>
-    <option value="9">9 years</option>
-    <option value="10">10 years</option>
-    <option value="11">11 years</option>
-    <option value="12">12 years</option>
-    <option value="13">13 years</option>
+    <option value="5">5 years</option><option value="6">6</option>
+    <option value="7">7</option><option value="8">8</option>
+    <option value="9">9</option><option value="10">10</option>
+    <option value="11">11</option><option value="12">12</option>
+    <option value="13">13</option>
   </select>
   <button onclick="show('characters')">Choose Character 🎭</button>
 </div>
 
-<!-- CHARACTERS -->
+<!-- CHARACTER SELECT -->
 <div class="screen" id="characters">
   <div class="grid" id="charGrid"></div>
+</div>
+
+<!-- LOADING -->
+<div class="screen" id="loading">
+  <div class="loader">
+    <div class="spinner"></div>
+    <p>Setting up the stage… 🎶</p>
+  </div>
 </div>
 
 <!-- GAME -->
@@ -554,6 +183,7 @@ button.ghost{background:#fff;color:var(--accent);border:2px solid var(--accent);
   <button class="ghost" onclick="quitGame()">Quit 🚪</button>
 </div>
 
+<!-- END -->
 <div class="screen" id="end">
   <div id="endMsg"></div>
   <div id="explain"></div>
@@ -573,8 +203,7 @@ const characters=[
 let selectedChar=0;
 let score=0,q=0,a=0,b=0,ans=0;
 let level=Number(localStorage.getItem("adaptiveLevel"))||1;
-let streak=0;
-let lastTime=Date.now();
+let streak=0,lastTime=0;
 
 function show(id){
  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
@@ -587,7 +216,11 @@ function renderCharacters(){
   const d=document.createElement("div");
   d.className="charCard";
   d.innerHTML=`<div class="charEmoji">${c.emoji}</div>${c.name}`;
-  d.onclick=()=>{selectedChar=i;startGame();};
+  d.onclick=()=>{
+    selectedChar=i;
+    show("loading");
+    setTimeout(startGame,800); // ⏳ loading delay
+  };
   charGrid.appendChild(d);
  });
 }
@@ -602,7 +235,7 @@ function startGame(){
 }
 
 function quitGame(){
- endGame();
+ saveLevel();
  show("start");
 }
 
@@ -612,7 +245,7 @@ function next(){
  const age=Number(ageInput.value);
  const boost=Math.min(level,10);
 
- if(age<=6){                 // ✅ counters ONLY for ages 5–6
+ if(age<=6){
    a=Math.floor(Math.random()*(5+boost))+1;
    b=Math.floor(Math.random()*(5+boost))+1;
    ans=a+b;
@@ -648,7 +281,7 @@ function submit(){
    level=Math.max(1,level-1);
    explain.innerHTML=`<p><strong>Correct answer:</strong> ${ans}</p>`;
    endMsg.innerText=`Game Over! Score ${score}/10`;
-   endGame();
+   saveLevel();
    show("end");
  }
 }
@@ -657,11 +290,11 @@ function win(){
  level++;
  endMsg.innerText="🎆 PERFECT SHOW! 10/10 🎆";
  explain.innerHTML="";
- endGame();
+ saveLevel();
  show("end");
 }
 
-function endGame(){
+function saveLevel(){
  localStorage.setItem("adaptiveLevel",level);
 }
 </script>
