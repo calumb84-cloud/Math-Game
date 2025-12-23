@@ -1,944 +1,345 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>K-POP Demon Hunters: Math Quest</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K-POP Demon Hunters</title>
 
-  <style>
-    :root{
-      --pink:#ff2f92;
-      --bg1:#ffb3e6;
-      --bg2:#9ad9ff;
-      --card:#ffffff;
-      --text:#1d1d1f;
-      --muted:#6b6b6f;
-      --good:#1a9b4b;
-      --bad:#d22b2b;
-    }
+<style>
+:root{
+  --accent:#ff2f92;
+  --stage1:#ff5fa2;
+  --stage2:#ff9ad5;
+}
 
-    *{ box-sizing:border-box; }
+body{
+  margin:0;
+  font-family:"Comic Sans MS", Arial, sans-serif;
+  background:#000;
+  overflow:hidden;
+}
 
-    body{
-      margin:0;
-      font-family: "Comic Sans MS", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: linear-gradient(135deg, var(--bg1), var(--bg2));
-      min-height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      padding:16px;
-      color:var(--text);
-    }
+/* ===== STAGE ===== */
+.stage{
+  position:fixed;
+  inset:0;
+  z-index:-2;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,.25), transparent 40%),
+    radial-gradient(circle at 70% 20%, rgba(255,255,255,.2), transparent 45%),
+    linear-gradient(135deg,var(--stage1),var(--stage2));
+  animation:pulse 6s infinite alternate;
+}
 
-    .app{
-      width: min(520px, 100%);
-      background: var(--card);
-      border-radius: 22px;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.22);
-      overflow:hidden;
-    }
+@keyframes pulse{
+  from{filter:brightness(1)}
+  to{filter:brightness(1.2)}
+}
 
-    header{
-      padding:18px 18px 10px;
-      text-align:center;
-      background: linear-gradient(180deg, rgba(255,47,146,0.12), rgba(255,47,146,0));
-    }
-    header h1{
-      margin:0;
-      color:var(--pink);
-      font-size:22px;
-      line-height:1.1;
-    }
-    header .sub{
-      margin:8px 0 0;
-      font-size:14px;
-      color:var(--muted);
-    }
+/* ===== CROWD ===== */
+.crowd{
+  position:fixed;
+  bottom:-10px;
+  width:100%;
+  height:140px;
+  display:flex;
+  justify-content:space-around;
+  align-items:flex-end;
+  z-index:-1;
+}
 
-    .content{ padding:16px; }
+.fan{
+  width:20px;
+  height:60px;
+  background:#000;
+  border-radius:50% 50% 0 0;
+  animation:wave 1.5s ease-in-out infinite;
+}
 
-    .screen{ display:none; }
-    .screen.active{ display:block; animation: fadeIn .35s ease; }
+.fan:nth-child(even){animation-delay:.3s}
+.fan:nth-child(odd){animation-delay:.6s}
 
-    @keyframes fadeIn{
-      from{ opacity:0; transform: translateY(6px); }
-      to{ opacity:1; transform: translateY(0); }
-    }
+@keyframes wave{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-20px)}
+}
 
-    .row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:center;
-      align-items:center;
-      margin-top:10px;
-    }
+/* ===== APP ===== */
+.app{
+  max-width:520px;
+  margin:20px auto;
+  background:#fff;
+  border-radius:22px;
+  box-shadow:0 12px 30px rgba(0,0,0,.4);
+  overflow:hidden;
+}
 
-    label{
-      display:block;
-      text-align:left;
-      font-size:14px;
-      color:var(--muted);
-      margin:10px 0 6px;
-    }
+header{
+  text-align:center;
+  padding:16px;
+  color:var(--accent);
+}
 
-    input, select{
-      width:100%;
-      font-size:18px;
-      padding:12px 12px;
-      border-radius:14px;
-      border:2px solid rgba(255,47,146,0.55);
-      outline:none;
-    }
-    input:focus, select:focus{
-      border-color: var(--pink);
-      box-shadow: 0 0 0 4px rgba(255,47,146,0.12);
-    }
+.screen{display:none;padding:16px;}
+.screen.active{display:block;}
 
-    button{
-      width:100%;
-      margin-top:12px;
-      font-size:18px;
-      padding:12px 14px;
-      border:0;
-      border-radius:14px;
-      background: var(--pink);
-      color:#fff;
-      cursor:pointer;
-      transition: transform .05s ease;
-    }
-    button:active{ transform: scale(0.98); }
-    button.secondary{
-      background: #2b2b2f;
-    }
-    button.ghost{
-      background: transparent;
-      color: var(--pink);
-      border: 2px solid rgba(255,47,146,0.6);
-    }
-    button:disabled{
-      opacity:0.55;
-      cursor:not-allowed;
-    }
+input,select,button{
+  width:100%;
+  font-size:18px;
+  padding:12px;
+  border-radius:14px;
+  border:2px solid var(--accent);
+  margin-top:10px;
+}
 
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      padding:8px 12px;
-      border-radius:999px;
-      font-size:13px;
-      background: rgba(0,0,0,0.05);
-      color: var(--text);
-    }
+button{
+  background:var(--accent);
+  color:#fff;
+  border:none;
+}
 
-    .hud{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      justify-content:center;
-      margin: 8px 0 12px;
-    }
+button.ghost{
+  background:#fff;
+  color:var(--accent);
+  border:2px solid var(--accent);
+}
 
-    .arena{
-      text-align:center;
-      padding: 10px 8px 2px;
-    }
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
 
-    .hero{
-      font-size:64px;
-      line-height:1;
-      display:inline-block;
-      animation: bounce 1.6s infinite;
-    }
-    .demon{
-      font-size:52px;
-      line-height:1;
-      display:inline-block;
-      margin-left:10px;
-      animation: shake 1.1s infinite;
-    }
-    @keyframes bounce{
-      0%,100%{ transform: translateY(0); }
-      50%{ transform: translateY(-10px); }
-    }
-    @keyframes shake{
-      0%{ transform: rotate(0deg); }
-      25%{ transform: rotate(5deg); }
-      50%{ transform: rotate(0deg); }
-      75%{ transform: rotate(-5deg); }
-      100%{ transform: rotate(0deg); }
-    }
+.charCard{
+  padding:12px;
+  border-radius:16px;
+  border:2px solid #ccc;
+  text-align:center;
+  cursor:pointer;
+}
 
-    .question{
-      font-size:18px;
-      margin: 10px 0 8px;
-      padding: 12px 12px;
-      border-radius: 16px;
-      background: rgba(255,47,146,0.08);
-      border: 1px solid rgba(255,47,146,0.18);
-    }
+.charCard.selected{
+  border-color:var(--accent);
+  background:#ffe3f2;
+}
 
-    .message{
-      margin-top:10px;
-      font-size:16px;
-      min-height: 22px;
-    }
-    .message.good{ color: var(--good); }
-    .message.bad{ color: var(--bad); }
+.hero{
+  font-size:64px;
+  text-align:center;
+  animation:bounce 1.4s infinite;
+}
 
-    .explain{
-      margin-top:10px;
-      text-align:left;
-      background: rgba(0,0,0,0.05);
-      padding:12px;
-      border-radius:16px;
-      border: 1px solid rgba(0,0,0,0.06);
-      font-size:15px;
-      line-height:1.35;
-    }
+@keyframes bounce{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-12px)}
+}
 
-    .grid{
-      display:grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap:10px;
-      margin-top:10px;
-    }
-    @media (min-width: 480px){
-      .grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    }
+.hud{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
 
-    .charCard{
-      border-radius:18px;
-      border:2px solid rgba(0,0,0,0.10);
-      background: rgba(0,0,0,0.02);
-      padding:12px 10px;
-      text-align:center;
-      cursor:pointer;
-      user-select:none;
-      transition: transform .08s ease, border-color .12s ease, box-shadow .12s ease;
-      position:relative;
-      overflow:hidden;
-    }
-    .charCard:hover{ transform: translateY(-1px); }
-    .charCard.selected{
-      border-color: var(--pink);
-      box-shadow: 0 0 0 4px rgba(255,47,146,0.12);
-      background: rgba(255,47,146,0.06);
-    }
-    .charEmoji{
-      font-size:44px;
-      line-height:1;
-      display:inline-block;
-      animation: floaty 2.2s ease-in-out infinite;
-    }
-    @keyframes floaty{
-      0%,100%{ transform: translateY(0); }
-      50%{ transform: translateY(-6px); }
-    }
-    .charName{
-      margin-top:8px;
-      font-size:13px;
-      color: var(--muted);
-    }
+.pill{
+  background:#eee;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:13px;
+}
 
-    .leaderboard{
-      margin-top:14px;
-      text-align:left;
-      padding: 12px;
-      border-radius: 16px;
-      background: rgba(0,0,0,0.04);
-      border: 1px solid rgba(0,0,0,0.06);
-      font-size:14px;
-    }
-    .leaderboard h3{
-      margin:0 0 8px;
-      font-size:14px;
-      color: var(--text);
-    }
-    .lbRow{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      padding:6px 0;
-      border-top: 1px dashed rgba(0,0,0,0.12);
-    }
-    .lbRow:first-of-type{ border-top:0; }
-    .muted{ color: var(--muted); }
+.question{
+  background:#f5f5f5;
+  padding:12px;
+  border-radius:14px;
+  margin:12px 0;
+}
 
-    .tiny{
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 8px;
-    }
-  </style>
+/* ===== LEADERBOARD ===== */
+.leaderboard{
+  background:#f5f5f5;
+  padding:12px;
+  border-radius:14px;
+  margin-top:14px;
+}
+
+.lbRow{
+  display:flex;
+  justify-content:space-between;
+  font-size:14px;
+  border-bottom:1px dashed #ccc;
+  padding:4px 0;
+}
+
+/* ===== FIREWORKS ===== */
+.firework{
+  position:fixed;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:red;
+  animation:explode 1.5s ease-out forwards;
+}
+
+@keyframes explode{
+  from{transform:scale(0);opacity:1}
+  to{transform:scale(12);opacity:0}
+}
+</style>
 </head>
 
 <body>
-  <div class="app" role="application">
-    <header>
-      <h1>🎤 K-POP Demon Hunters ⚔️</h1>
-      <div class="sub">Answer up to 10 questions. One wrong answer ends the show!</div>
-    </header>
 
-    <div class="content">
+<div class="stage"></div>
 
-      <!-- START SCREEN -->
-      <section class="screen active" id="screenStart">
-        <label for="nameInput">Hunter name</label>
-        <input id="nameInput" placeholder="Type your name" autocomplete="off" />
+<div class="crowd">
+  <div class="fan"></div><div class="fan"></div><div class="fan"></div>
+  <div class="fan"></div><div class="fan"></div><div class="fan"></div>
+  <div class="fan"></div><div class="fan"></div><div class="fan"></div>
+</div>
 
-        <div class="row">
-          <div style="flex:1; min-width: 160px;">
-            <label for="ageInput">Age</label>
-            <select id="ageInput">
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10</option>
-              <option value="11">11</option>
-              <option value="12">12</option>
-            </select>
-          </div>
+<div class="app">
+<header><h1>🎤 K-POP Demon Hunters ⚔️</h1></header>
 
-          <div style="flex:1; min-width: 160px;">
-            <label>Mode</label>
-            <div class="pill" id="modePill">Adaptive difficulty: ON 🤖</div>
-          </div>
-        </div>
+<!-- START -->
+<div class="screen active" id="start">
+  <input id="nameInput" placeholder="Hunter name">
+  <select id="ageInput">
+    <option>7</option><option>8</option><option>9</option>
+    <option>10</option><option>11</option><option>12</option>
+  </select>
+  <button onclick="goCharacters()">Choose Character 🎭</button>
 
-        <button id="btnToCharacters">Choose character ✨</button>
+  <div class="leaderboard" id="leaderboard"></div>
+</div>
 
-        <div class="leaderboard" id="leaderboardStart"></div>
+<!-- CHARACTERS -->
+<div class="screen" id="characters">
+  <div class="grid" id="charGrid"></div>
+  <button onclick="startGame()">Start Game 🎶</button>
+  <button class="ghost" onclick="show('start')">Back</button>
+</div>
 
-        <div class="tiny">
-          Tip: Add this page to your home screen for an “app” feel (iPhone/iPad: Share → Add to Home Screen).
-        </div>
-      </section>
-
-      <!-- CHARACTER SELECT SCREEN -->
-      <section class="screen" id="screenCharacter">
-        <div class="muted" style="text-align:center; margin-bottom:6px;">
-          Pick your K-POP Demon Hunter!
-        </div>
-
-        <div class="grid" id="charGrid"></div>
-
-        <button id="btnStartGame">Start game 🎶</button>
-        <button class="ghost" id="btnBackToStart">Back</button>
-      </section>
-
-      <!-- GAME SCREEN -->
-      <section class="screen" id="screenGame">
-        <div class="hud">
-          <span class="pill" id="hudPlayer">Hunter</span>
-          <span class="pill" id="hudAge">Age 7</span>
-          <span class="pill" id="hudDifficulty">AI Level 1</span>
-          <span class="pill" id="hudScore">Score 0/10</span>
-        </div>
-
-        <div class="arena">
-          <span class="hero" id="heroEmoji">🧑‍🎤⚡</span>
-          <span class="demon" id="demonEmoji">😈</span>
-        </div>
-
-        <div class="question" id="questionBox">Question will appear here…</div>
-
-        <label for="answerInput">Your answer</label>
-        <input id="answerInput" inputmode="numeric" type="number" />
-
-        <button id="btnAttack">Attack 💥</button>
-        <button class="secondary" id="btnQuit">Quit</button>
-
-        <div class="message" id="message"></div>
-        <div class="explain" id="explainBox" style="display:none;"></div>
-      </section>
-
-      <!-- END SCREEN -->
-      <section class="screen" id="screenEnd">
-        <div style="text-align:center;">
-          <div class="arena" style="padding-top:0;">
-            <span class="hero" id="endHero">🧑‍🎤✨</span>
-            <span class="demon" id="endDemon">😵‍💫</span>
-          </div>
-          <div class="question" id="endTitle">Game Over!</div>
-          <div class="message" id="endMsg"></div>
-        </div>
-
-        <div class="leaderboard" id="leaderboardEnd"></div>
-
-        <button id="btnPlayAgain">Play again 🎵</button>
-        <button class="ghost" id="btnChangeCharacter">Change character 🎭</button>
-        <button class="ghost" id="btnResetData">Reset saved data (difficulty + leaderboard)</button>
-      </section>
-
-    </div>
+<!-- GAME -->
+<div class="screen" id="game">
+  <div class="hud">
+    <div class="pill" id="hudPlayer"></div>
+    <div class="pill" id="hudScore"></div>
   </div>
 
-  <!-- Sounds (online). If offline, the game still works; sounds may not play. -->
-  <audio id="sndCorrect" preload="auto" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg"></audio>
-  <audio id="sndWrong" preload="auto" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
-  <audio id="sndWin" preload="auto" src="https://actions.google.com/sounds/v1/cartoon/ta_da.ogg"></audio>
+  <div class="hero" id="hero"></div>
+
+  <div class="question" id="question"></div>
+  <input type="number" id="answer">
+  <button onclick="submit()">Attack 💥</button>
+</div>
+
+<!-- END -->
+<div class="screen" id="end">
+  <div class="hero">🏆</div>
+  <div id="endMsg"></div>
+  <button onclick="startGame()">Play Again</button>
+</div>
+
+<!-- AUDIO -->
+<audio id="bgMusic" loop></audio>
+<audio id="correct" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg"></audio>
+<audio id="wrong" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
 
 <script>
-/* -------------------------
-   STORAGE KEYS
--------------------------- */
-const KEY_SKILL = "kpop_math_skill_v1";       // adaptive skill across plays
-const KEY_SCORES = "kpop_math_scores_v1";     // leaderboard
-const KEY_LAST_AGE = "kpop_math_last_age_v1";
-const KEY_LAST_NAME = "kpop_math_last_name_v1";
-const KEY_LAST_CHAR = "kpop_math_last_char_v1";
-
-/* -------------------------
-   CHARACTERS
--------------------------- */
-const CHARACTERS = [
-  { id:"nova",   emoji:"🧑‍🎤⚡", name:"Nova (Lightning Idol)" },
-  { id:"luna",   emoji:"🧝‍♀️🎤", name:"Luna (Moon Vocalist)" },
-  { id:"blaze",  emoji:"🦸‍♀️🔥", name:"Blaze (Stage Captain)" },
-  { id:"echo",   emoji:"🧑‍🎤💎", name:"Echo (Crystal Rapper)" },
-  { id:"miko",   emoji:"🧙‍♀️✨", name:"Miko (Glitter Mage)" },
-  { id:"jinx",   emoji:"🧑‍🎤🪽", name:"Jinx (Winged Dancer)" },
+const chars=[
+ {name:"Zoey",emoji:"🧑‍🎤⚡",music:"https://cdn.pixabay.com/audio/2023/04/11/audio_8d9a2e3c7c.mp3"},
+ {name:"Rumi",emoji:"🧝‍♀️🎤",music:"https://cdn.pixabay.com/audio/2023/03/30/audio_9b9e5c14d7.mp3"},
+ {name:"Mira",emoji:"🦸‍♀️🔥",music:"https://cdn.pixabay.com/audio/2022/11/30/audio_f7f40a2b6c.mp3"},
+ {name:"Loe",emoji:"🧑‍🎤💎",music:"https://cdn.pixabay.com/audio/2022/10/03/audio_2a55c3d1c7.mp3"},
+ {name:"Luna Max",emoji:"🧙‍♀️✨",music:"https://cdn.pixabay.com/audio/2022/03/15/audio_7b2a6d6fcb.mp3"},
+ {name:"Zakey",emoji:"🧑‍🎤🪽",music:"https://cdn.pixabay.com/audio/2022/08/04/audio_8d0f3f0a55.mp3"},
 ];
 
-const DEMONS = ["😈","👹","🧌","👻","🤡","😵‍💫","👾","💀"];
+let idx=0,score=0,q=0,ans=0;
 
-/* -------------------------
-   STATE
--------------------------- */
-let playerName = "Hunter";
-let playerAge = 7;
-let selectedCharId = CHARACTERS[0].id;
-
-let score = 0;
-let qIndex = 0;              // 1..10
-let currentProblem = null;   // {text, answer, explain, meta}
-let inGame = false;
-
-/** Adaptive AI difficulty:
- *  - base skill comes from localStorage (shared across ages)
- *  - during a run, difficulty increases with correct streak
- *  - after a full 10/10 win, skill increments
- *  - on loss, skill slightly decreases (still ends game)
- */
-let storedSkill = loadSkill();     // integer >=1
-let runSkill = storedSkill;        // starts from storedSkill, changes in-run
-let streak = 0;
-
-/* -------------------------
-   DOM HELPERS
--------------------------- */
-const $ = (id)=>document.getElementById(id);
-
-const screens = {
-  start: $("screenStart"),
-  character: $("screenCharacter"),
-  game: $("screenGame"),
-  end: $("screenEnd"),
-};
-
-function showScreen(which){
-  Object.values(screens).forEach(s=>s.classList.remove("active"));
-  screens[which].classList.add("active");
+function show(id){
+ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+ document.getElementById(id).classList.add("active");
 }
 
-/* -------------------------
-   INIT
--------------------------- */
-hydrateFromStorage();
-renderLeaderboard($("leaderboardStart"));
-renderCharacters();
-
-$("btnToCharacters").addEventListener("click", ()=>{
-  // persist start fields before moving on
-  playerName = ($("nameInput").value || "Hunter").trim();
-  playerAge = Number($("ageInput").value || 7);
-  localStorage.setItem(KEY_LAST_NAME, playerName);
-  localStorage.setItem(KEY_LAST_AGE, String(playerAge));
-  showScreen("character");
-});
-
-$("btnBackToStart").addEventListener("click", ()=>{
-  showScreen("start");
-});
-
-$("btnStartGame").addEventListener("click", ()=>{
-  // final persist
-  playerName = ($("nameInput").value || "Hunter").trim();
-  playerAge = Number($("ageInput").value || 7);
-  localStorage.setItem(KEY_LAST_NAME, playerName);
-  localStorage.setItem(KEY_LAST_AGE, String(playerAge));
-  localStorage.setItem(KEY_LAST_CHAR, selectedCharId);
-  startGame();
-});
-
-$("btnAttack").addEventListener("click", submitAnswer);
-$("answerInput").addEventListener("keydown", (e)=>{
-  if (e.key === "Enter") submitAnswer();
-});
-
-$("btnQuit").addEventListener("click", ()=>{
-  endGame(false, "You quit the show. Come back anytime! 🎶");
-});
-
-$("btnPlayAgain").addEventListener("click", ()=>{
-  // Keep name/age/char; restart run
-  startGame();
-});
-
-$("btnChangeCharacter").addEventListener("click", ()=>{
-  showScreen("character");
-});
-
-$("btnResetData").addEventListener("click", ()=>{
-  localStorage.removeItem(KEY_SKILL);
-  localStorage.removeItem(KEY_SCORES);
-  storedSkill = 1;
-  runSkill = 1;
-  renderLeaderboard($("leaderboardEnd"));
-  renderLeaderboard($("leaderboardStart"));
-  $("endMsg").textContent = "Saved data cleared ✅";
-});
-
-/* -------------------------
-   STORAGE
--------------------------- */
-function loadSkill(){
-  const n = Number(localStorage.getItem(KEY_SKILL));
-  return Number.isFinite(n) && n >= 1 ? Math.floor(n) : 1;
-}
-function saveSkill(n){
-  const v = Math.max(1, Math.floor(n));
-  localStorage.setItem(KEY_SKILL, String(v));
+function goCharacters(){
+ const g=document.getElementById("charGrid");g.innerHTML="";
+ chars.forEach((c,i)=>{
+  const d=document.createElement("div");
+  d.className="charCard"+(i===idx?" selected":"");
+  d.innerHTML=`<div style="font-size:40px">${c.emoji}</div>${c.name}`;
+  d.onclick=()=>{idx=i;goCharacters();}
+  g.appendChild(d);
+ });
+ show("characters");
 }
 
-function loadScores(){
-  try{
-    const arr = JSON.parse(localStorage.getItem(KEY_SCORES) || "[]");
-    return Array.isArray(arr) ? arr : [];
-  }catch{
-    return [];
-  }
-}
-function saveScores(scores){
-  localStorage.setItem(KEY_SCORES, JSON.stringify(scores));
-}
-
-function hydrateFromStorage(){
-  const lastName = localStorage.getItem(KEY_LAST_NAME);
-  const lastAge = localStorage.getItem(KEY_LAST_AGE);
-  const lastChar = localStorage.getItem(KEY_LAST_CHAR);
-
-  if (lastName) $("nameInput").value = lastName;
-  if (lastAge) $("ageInput").value = lastAge;
-
-  if (lastChar && CHARACTERS.some(c=>c.id===lastChar)){
-    selectedCharId = lastChar;
-  }
-}
-
-/* -------------------------
-   UI: CHARACTERS
--------------------------- */
-function renderCharacters(){
-  const grid = $("charGrid");
-  grid.innerHTML = "";
-
-  CHARACTERS.forEach(c=>{
-    const div = document.createElement("div");
-    div.className = "charCard" + (c.id === selectedCharId ? " selected" : "");
-    div.innerHTML = `
-      <div class="charEmoji">${c.emoji}</div>
-      <div class="charName">${escapeHtml(c.name)}</div>
-    `;
-    div.addEventListener("click", ()=>{
-      selectedCharId = c.id;
-      localStorage.setItem(KEY_LAST_CHAR, selectedCharId);
-      // rerender selection states
-      renderCharacters();
-    });
-    grid.appendChild(div);
-  });
-}
-
-function getSelectedChar(){
-  return CHARACTERS.find(c=>c.id===selectedCharId) || CHARACTERS[0];
-}
-
-/* -------------------------
-   UI: LEADERBOARD
--------------------------- */
-function renderLeaderboard(container){
-  const scores = loadScores();
-  const top = scores.slice(0,5);
-
-  if (!top.length){
-    container.innerHTML = `
-      <h3>🏆 Leaderboard</h3>
-      <div class="muted">No scores yet — be the first demon hunter!</div>
-    `;
-    return;
-  }
-
-  container.innerHTML = `<h3>🏆 Leaderboard</h3>`;
-  top.forEach((s, i)=>{
-    const row = document.createElement("div");
-    row.className = "lbRow";
-    row.innerHTML = `
-      <div>${i+1}. ${escapeHtml(s.name)} <span class="muted">(${s.charEmoji})</span></div>
-      <div><strong>${s.score}</strong>/10</div>
-    `;
-    container.appendChild(row);
-  });
-
-  const small = document.createElement("div");
-  small.className = "tiny";
-  small.textContent = "Leaderboard is saved on this device.";
-  container.appendChild(small);
-}
-
-/* -------------------------
-   GAME FLOW
--------------------------- */
 function startGame(){
-  inGame = true;
-  score = 0;
-  qIndex = 0;
-  streak = 0;
-
-  storedSkill = loadSkill();
-  runSkill = storedSkill; // adaptive baseline
-
-  $("message").textContent = "";
-  $("message").className = "message";
-  $("explainBox").style.display = "none";
-  $("explainBox").innerHTML = "";
-
-  const hero = getSelectedChar();
-  $("heroEmoji").textContent = hero.emoji;
-  $("hudPlayer").textContent = `${playerName} ${hero.emoji}`;
-  $("hudAge").textContent = `Age ${playerAge}`;
-  $("btnAttack").disabled = false;
-  $("answerInput").disabled = false;
-
-  showScreen("game");
-  nextQuestion();
+ score=0;q=0;
+ document.getElementById("bgMusic").src=chars[idx].music;
+ document.getElementById("bgMusic").play();
+ show("game");next();
 }
 
-function nextQuestion(){
-  if (!inGame) return;
-
-  if (qIndex >= 10){
-    // WIN
-    playSound("sndWin");
-    // increase skill more for a perfect run
-    saveSkill(storedSkill + 1);
-    storedSkill = loadSkill();
-    recordScore(true);
-    endGame(true, `Amazing show, ${playerName}! You cleared all 10 demons! 🏆`);
-    return;
-  }
-
-  qIndex++;
-  const demon = DEMONS[randInt(0, DEMONS.length-1)];
-  $("demonEmoji").textContent = demon;
-
-  // Adaptive AI: within-run raises runSkill as streak grows
-  // also uses age as baseline. This keeps things “right-sized.”
-  const aiLevel = Math.max(1, runSkill + Math.floor(streak / 2));
-  $("hudDifficulty").textContent = `AI Level ${aiLevel}`;
-  $("hudScore").textContent = `Score ${score}/10`;
-
-  currentProblem = generateProblem(playerAge, aiLevel);
-  $("questionBox").textContent = `Q${qIndex}: ${currentProblem.text}`;
-  $("answerInput").value = "";
-  $("answerInput").focus();
-
-  $("message").textContent = "";
-  $("message").className = "message";
-  $("explainBox").style.display = "none";
-  $("explainBox").innerHTML = "";
+function next(){
+ if(q>=10){win();return;}
+ q++;
+ const a=Math.floor(Math.random()*10)+1;
+ const b=Math.floor(Math.random()*10)+1;
+ ans=a+b;
+ document.getElementById("question").innerText=`${a} + ${b} = ?`;
+ document.getElementById("hudPlayer").innerText=chars[idx].name;
+ document.getElementById("hudScore").innerText=`${score}/10`;
+ document.getElementById("hero").innerText=chars[idx].emoji;
+ document.getElementById("answer").value="";
 }
 
-function submitAnswer(){
-  if (!inGame || !currentProblem) return;
-
-  const raw = $("answerInput").value;
-  const val = Number(raw);
-
-  if (!Number.isFinite(val)){
-    $("message").textContent = "Type a number to attack! ✨";
-    return;
-  }
-
-  if (val === currentProblem.answer){
-    // correct
-    playSound("sndCorrect");
-    score++;
-    streak++;
-
-    // Tiny adaptive bump during run: every correct answer nudges runSkill
-    // (cap so it doesn't explode)
-    runSkill = Math.min(20, runSkill + 0.15);
-
-    $("message").textContent = "✨ Correct! Demon defeated!";
-    $("message").className = "message good";
-
-    // next
-    setTimeout(nextQuestion, 220);
-  } else {
-    // wrong => game ends immediately, BUT show correct answer + reasoning.
-    playSound("sndWrong");
-    inGame = false;
-
-    // Slightly reduce stored skill so next play isn't too punishing
-    // (still minimum 1).
-    saveSkill(Math.max(1, storedSkill - 0.2));
-    storedSkill = loadSkill();
-
-    $("message").textContent = "💀 Wrong answer — the demons won this round!";
-    $("message").className = "message bad";
-
-    $("explainBox").style.display = "block";
-    $("explainBox").innerHTML = `
-      <div><strong>Correct answer:</strong> ${currentProblem.answer}</div>
-      <div style="margin-top:8px;"><strong>Reasoning:</strong><br>${currentProblem.explain}</div>
-    `;
-
-    $("btnAttack").disabled = true;
-    $("answerInput").disabled = true;
-
-    recordScore(false);
-    setTimeout(()=>{
-      endGame(false, `${playerName}, you scored ${score}/10. Try again with your new strategies! 🎤`);
-    }, 650);
-  }
+function submit(){
+ const v=Number(answer.value);
+ if(v===ans){
+  score++;correct.play();next();
+ }else{
+  wrong.play();saveScore();
+  endMsg.innerText=`Game Over! Score ${score}/10`;show("end");
+ }
 }
 
-function endGame(won, msg){
-  inGame = false;
-
-  const hero = getSelectedChar();
-  $("endHero").textContent = hero.emoji;
-  $("endDemon").textContent = won ? "😵‍💫" : "😈";
-
-  $("endTitle").textContent = won ? "🏆 YOU WIN!" : "💀 GAME OVER!";
-  $("endMsg").textContent = msg;
-
-  renderLeaderboard($("leaderboardEnd"));
-  renderLeaderboard($("leaderboardStart"));
-  showScreen("end");
+function win(){
+ saveScore();fireworks();
+ endMsg.innerText="🎆 PERFECT SHOW! 10/10 🎆";
+ show("end");
 }
 
-function recordScore(won){
-  // Save score even on loss (so kids can see improvement).
-  // You can change this to only save on win if you prefer.
-  const hero = getSelectedChar();
-  const scores = loadScores();
-
-  scores.push({
-    name: playerName,
-    score: score,
-    age: playerAge,
-    charId: hero.id,
-    charEmoji: hero.emoji,
-    ts: Date.now(),
-    won: !!won
-  });
-
-  // sort: score desc, then newest
-  scores.sort((a,b)=>{
-    if (b.score !== a.score) return b.score - a.score;
-    return b.ts - a.ts;
-  });
-
-  saveScores(scores.slice(0, 30)); // keep last 30 entries
+function fireworks(){
+ for(let i=0;i<20;i++){
+  const f=document.createElement("div");
+  f.className="firework";
+  f.style.left=Math.random()*100+"%";
+  f.style.top=Math.random()*60+"%";
+  f.style.background=`hsl(${Math.random()*360},100%,60%)`;
+  document.body.appendChild(f);
+  setTimeout(()=>f.remove(),1500);
+ }
 }
 
-/* -------------------------
-   PROBLEM GENERATOR (Age 7–12 + Adaptive AI Level)
-   Returns: {text, answer, explain}
--------------------------- */
-function generateProblem(age, aiLevel){
-  // clamp
-  age = Math.max(7, Math.min(12, age));
-  aiLevel = Math.max(1, Math.min(25, Math.floor(aiLevel)));
-
-  // Make number ranges scale with age + aiLevel
-  const base = (age - 6) * 4;              // 7->4 ... 12->24
-  const scale = base + aiLevel * 2;        // grows with AI level
-
-  // Decide what kinds of questions appear by age:
-  // 7: +, - within 20-ish
-  // 8: +, -, easy × (2–5)
-  // 9: × up to 6, +/-
-  // 10: × up to 9, missing number
-  // 11: 2-step (+/-) and ×
-  // 12: mixed 2-step, ×, simple division with integer result
-  const roll = Math.random();
-
-  // Helper for cute themed text
-  const themed = {
-    fans: "fans",
-    sticks: "lightsticks",
-    demons: "demons",
-    stages: "stages",
-    moves: "dance moves",
-    stars: "stars",
-  };
-
-  // Age 7–8: Mostly single-step
-  if (age <= 8){
-    const max = Math.min(40, 12 + scale);   // keep friendly
-    if (roll < 0.55){
-      // addition
-      const a = randInt(3, Math.max(8, Math.floor(max*0.7)));
-      const b = randInt(2, Math.max(6, Math.floor(max*0.4)));
-      const ans = a + b;
-      return {
-        text: `${a} ${themed.fans} arrive and ${b} more join. How many ${themed.fans} now?`,
-        answer: ans,
-        explain: `${a} + ${b} = ${ans}. We add because more fans joined.`
-      };
-    } else {
-      // subtraction (ensure non-negative)
-      const a = randInt(8, max);
-      const b = randInt(1, Math.min(10 + Math.floor(aiLevel/2), a-1));
-      const ans = a - b;
-      return {
-        text: `You have ${a} ${themed.sticks}. You give away ${b}. How many ${themed.sticks} are left?`,
-        answer: ans,
-        explain: `${a} − ${b} = ${ans}. We subtract because you gave some away.`
-      };
-    }
-  }
-
-  // Age 9–10: introduce more multiplication and missing number
-  if (age <= 10){
-    if (roll < 0.55){
-      // multiplication with small tables
-      const maxB = age === 9 ? 6 : 9;
-      const a = randInt(2, Math.min(12, 4 + Math.floor(aiLevel/2)));
-      const b = randInt(2, maxB);
-      const ans = a * b;
-      return {
-        text: `${a} ${themed.stages} with ${b} ${themed.demons} each. How many ${themed.demons} total?`,
-        answer: ans,
-        explain: `${a} × ${b} = ${ans}. Multiplication means equal groups.`
-      };
-    } else {
-      // missing number (easy)
-      const b = randInt(2, 9);
-      const a = randInt(2, 9);
-      const total = a * b;
-      // ask for the missing factor a
-      return {
-        text: `Mystery beat! ___ × ${b} = ${total}. What number goes in the blank?`,
-        answer: a,
-        explain: `We need a number that times ${b} makes ${total}. ${a} × ${b} = ${total}, so the blank is ${a}.`
-      };
-    }
-  }
-
-  // Age 11: 2-step + mixed
-  if (age === 11){
-    if (roll < 0.5){
-      // 2-step add then subtract
-      const a = randInt(15, 35 + aiLevel);
-      const b = randInt(4, 12 + Math.floor(aiLevel/2));
-      const c = randInt(3, Math.min(12 + Math.floor(aiLevel/2), a+b-1));
-      const ans = a + b - c;
-      return {
-        text: `${a} ${themed.fans} arrive, then ${b} more come, then ${c} leave. How many are left?`,
-        answer: ans,
-        explain: `First add: ${a} + ${b} = ${a+b}. Then subtract: ${a+b} − ${c} = ${ans}.`
-      };
-    } else {
-      // multiply then add
-      const groups = randInt(2, 6 + Math.floor(aiLevel/3));
-      const per = randInt(2, 8);
-      const extra = randInt(2, 12);
-      const ans = groups * per + extra;
-      return {
-        text: `${groups} ${themed.stages} with ${per} ${themed.demons} each, then ${extra} extra ${themed.demons} appear. Total?`,
-        answer: ans,
-        explain: `Groups first: ${groups} × ${per} = ${groups*per}. Then add extras: ${groups*per} + ${extra} = ${ans}.`
-      };
-    }
-  }
-
-  // Age 12: mixed 2-step + division (integer)
-  // Use aiLevel to increase number sizes gradually.
-  if (roll < 0.42){
-    // 2-step: (a+b)×c or a×b - c
-    if (Math.random() < 0.5){
-      const a = randInt(10, 30 + aiLevel);
-      const b = randInt(5, 20);
-      const c = randInt(2, 6);
-      const ans = (a + b) * c;
-      return {
-        text: `K-POP combo! (${a} + ${b}) × ${c} = ?`,
-        answer: ans,
-        explain: `First inside brackets: ${a} + ${b} = ${a+b}. Then multiply: ${a+b} × ${c} = ${ans}.`
-      };
-    } else {
-      const a = randInt(4, 10);
-      const b = randInt(6, 12);
-      const c = randInt(5, 25);
-      const ans = a * b - c;
-      return {
-        text: `Boss math! ${a} × ${b} − ${c} = ?`,
-        answer: ans,
-        explain: `Multiply first: ${a} × ${b} = ${a*b}. Then subtract: ${a*b} − ${c} = ${ans}.`
-      };
-    }
-  } else {
-    // division with integer result
-    const divisor = randInt(2, 10);
-    const quotient = randInt(3, 12 + Math.floor(aiLevel/2));
-    const total = divisor * quotient;
-    return {
-      text: `${total} ${themed.stars} are shared equally between ${divisor} hunters. How many ${themed.stars} each?`,
-      answer: quotient,
-      explain: `Division means sharing equally. ${total} ÷ ${divisor} = ${quotient} because ${divisor} × ${quotient} = ${total}.`
-    };
-  }
+function saveScore(){
+ const lb=JSON.parse(localStorage.getItem("scores")||"[]");
+ lb.push({name:nameInput.value||"Hunter",score});
+ lb.sort((a,b)=>b.score-a.score);
+ localStorage.setItem("scores",JSON.stringify(lb.slice(0,5)));
+ renderLeaderboard();
 }
 
-/* -------------------------
-   UTILITIES
--------------------------- */
-function randInt(min, max){
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+function renderLeaderboard(){
+ const lb=JSON.parse(localStorage.getItem("scores")||"[]");
+ leaderboard.innerHTML="<strong>🏆 Leaderboard</strong>";
+ lb.forEach((s,i)=>{
+  leaderboard.innerHTML+=`<div class="lbRow">${i+1}. ${s.name}<span>${s.score}</span></div>`;
+ });
 }
-
-function playSound(id){
-  const el = $(id);
-  if (!el) return;
-  try{
-    el.currentTime = 0;
-    el.play();
-  }catch{
-    // ignore autoplay restrictions
-  }
-}
-
-function escapeHtml(str){
-  return String(str)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-
-/* -------------------------
-   Show leaderboard on load
--------------------------- */
-renderLeaderboard($("leaderboardStart"));
+renderLeaderboard();
 </script>
+</div>
 </body>
 </html>
